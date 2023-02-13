@@ -82,7 +82,8 @@ public:
     // Operator overload member function declarations.
     T& operator()(int row, int col);
     T operator()(int row, int col) const;
-    T& operator[](int idx) const = delete;
+    T& operator[](int idx) = delete;
+    T operator[](int idx) const = delete;
     CustomMatrix& operator=(const CustomMatrix<T>& other);
     CustomMatrix& operator=(CustomMatrix<T>&& other);
     CustomMatrix& operator=(std::initializer_list<std::initializer_list<T>> lsts);
@@ -184,7 +185,7 @@ CustomMatrix<T>::CustomMatrix(const CustomMatrix& other) noexcept
 */
 template <typename T>
 CustomMatrix<T>::CustomMatrix(CustomMatrix&& other) noexcept
-    : m_rows { other.m_cols }
+    : m_rows { other.m_rows }
     , m_cols{ other.m_cols }
     , m_matrix{ static_cast<CustomArray<T>&&>(other.m_matrix) }
 {
@@ -298,9 +299,9 @@ std::ostream& CustomMatrix<T>::Display(std::ostream& out) const
     {
         for (int j{ 0 }; j < m_cols; ++j)
         {
-            std::cout << this->operator()(i,j) << " ";
+            out << this->operator()(i,j) << " ";
         }
-        std::cout << "\n";
+        out << "\n";
     }
     return out;
 }
