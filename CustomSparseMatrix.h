@@ -2,28 +2,87 @@
 #define CUSTOMSPARSEMATRIX_H_INCLUDED
 
 #include <iostream>
-#include <initializer_list>
+#include <cstddef>  // std::size_t
+#include <utility>  // std::swap, std::initializer_list, std::out_of_range
 #include <cassert>
-#include "CustomArray.h"
+#include "CustomLinkedList.h"
 
 /*
-   Element object that contains row, column and value information.
-   Will be entered into a CustomArray<T> object to generate the CustomSparseMatrix.
-*/
-template <typename T>
-struct element
-{
-    int row{};
-    int col{};
-    T value{};
-};
+ *
+ * File:    CustomSparseMatrix.h
+ *
+ * Author:  Alexander R.
+ * Date:    2023
+ *
+ * Summary of File:
+ *
+ *   This file contains code for a custom sparse matrix container in the form of a class template CustomSparseMatrix.
+ *   Member functions of the class are available to add, remove, or manipulate data.
+ *   Friend functions of the class are available to override the standard output stream operator <<.
+ *
+ *   The template class has been tested with the following data types:
+ *     * Integers
+ *     * Floats
+ *     * Doubles
+ *
+ */
 
-// The following are forward declarations of friend functions required for C++ templates.
 
-// The CustomSparseMatrix class must be forward declared for template function declaration to be possible.
+// Forward declarations of class template CustomLinkedList and associated friend functions begin here.
+// Required to support class template functionality.
+
+/*
+ *
+ *   Class Name: CustomSparseMatrix
+ *
+ *   Purpose:
+ *
+ *     A custom sparse matrix container class template.
+ *
+ *   Member Variables:
+ *
+ *     m_rows
+ *       An unsigned integer (std::size_t) that tracks the number of rows in the sparse matrix.
+ *     m_cols
+ *       An unsigned integer (std::size_t) that tracks the number of columns in the sparse matrix.
+ *     element
+ *       A struct that contains the element data and location within the sparse matrix.
+ *
+ *   Member Functions:
+ *
+ *     display
+ *       Prints the linked-list data to the specified output stream.
+ *
+ *     isSorted
+ *
+ *     insert
+ *
+ *     erase
+ *
+ *     bubbleSort
+ *
+ *
+ */
 template <typename T>
 class CustomSparseMatrix;
 
+/*
+ *
+ * template <typename T>
+ * std::ostream& operator<<(std::ostream& out, CustomSparseMatrix<T>& M);
+ *
+ * Summary:
+ *
+ *    Standard output operator overload for a CustomSparseMatrix sparse matrix object.
+ *
+ * Return Value: None
+ *
+ * Description:
+ *
+ *   Standard output operator overload that has friend privaleges within the CustomSparseMatrix class.
+ *   Calls the private member function display.
+ *
+ */
 template <typename T>
 std::ostream& operator<<(std::ostream& out, CustomSparseMatrix<T>& M);
 
@@ -33,149 +92,439 @@ template <typename T>
 class CustomSparseMatrix
 {
 private:
-    // Private variables.
-    int m_rows{};
-    int m_cols{};
-    CustomArray<element<T>> m_matrix{};
 
-    // Private member function declarations.
-    std::ostream& Display(std::ostream& out) const;
+    std::size_t m_rows{};
+    std::size_t m_cols{};
+
+    struct element
+    {
+        int row{};
+        int col{};
+        T value{};
+    };
+
+    CustomLinkedList<element> m_matrix{};
+
+    /*
+     *
+     * std::ostream& display(std::ostream& out) const;
+     *
+     * Summary:
+     *
+     *   Prints the linked-list data to the terminal.
+     *
+     * Parameters   : std::ostream& out
+     *
+     * Return Value : std::ostream& out
+     *
+     * Description:
+     *
+     *   Prints the data member variable of each CustomSparseMatrix element to the terminal as part of a matrix.
+     *   Called by the overloaded operator << friend function.
+     *
+     */
+    std::ostream& display(std::ostream& out) const;
+
 public:
-    // Constructor and destructor declarations.
-    CustomSparseMatrix() = delete;
-    CustomSparseMatrix(int rows, int cols) noexcept;
-    CustomSparseMatrix(const CustomSparseMatrix<T>& other) noexcept;
-    CustomSparseMatrix(CustomSparseMatrix<T>&& other) noexcept;
-    ~CustomSparseMatrix();
 
-    // Public member function declarations.
-    void insertElement(element<T> e, int idx);
-    void appendElement(element<T> e);
-    void removeElement(int idx);
-    void sortElements();
+    // CustomSparseMatrix objects must be constructed with parameters.
+    CustomSparseMatrix() = delete;
+
+    /*
+     *
+     * CustomSparseMatrix(std::size_t rows, std::size_t cols) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises a null matrix with defined size.
+     *
+     * Parameters: std::size_t rows, std::size_t cols
+     *
+     * Description:
+     *
+     *   Initialises a null matrix with defined size = rows x cols.
+     *
+     */
+    CustomSparseMatrix(std::size_t rows, std::size_t cols) noexcept;
+
+    /*
+     *
+     * CustomSparseMatrix(const CustomSparseMatrix<T>& other) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises a sparse matrix from another sparse matrix.
+     *
+     * Parameters: CustomSparseMatrix<T>& other
+     *
+     * Description:
+     *
+     *   Fundamental data type member variables are initialised with copy values.
+     *   The CustomLinkedList m_matrix is initialised using its copy constructor.
+     *
+     */
+    CustomSparseMatrix(const CustomSparseMatrix<T>& other) noexcept;
+
+    /*
+     *
+     * CustomSparseMatrix(CustomSparseMatrix<T>&& other) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises a matrix from another matrix.
+     *
+     * Parameters: CustomSparseMatrix<T>&& other
+     *
+     * Description:
+     *
+     *   Fundamental data type member variables are initialised with copy values.
+     *   The CustomLinkedList m_matrix is initialised using its move constructor.
+     *
+     */
+    CustomSparseMatrix(CustomSparseMatrix<T>&& other) noexcept;
+
+    // An overloaded destructor that writes a message to the standard output.
+    ~CustomSparseMatrix() noexcept;
+
+    /*
+     *
+     * void insert(int position, const element& e);
+     *
+     * Summary:
+     *
+     *   Inserts a new matrix element into the sparse matrix at the given position.
+     *
+     * Parameters   : int position, const element& e
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the CustomLinkedList insert member function.
+     *   Inserts a new matrix element into the sparse matrix at the given position.
+     *
+     */
+    void insert(int position, const element& e);
+
+    /*
+     *
+     * void erase(int position);
+     *
+     * Summary:
+     *
+     *   Removes an existing element at the specified position from the sparse matrix.
+     *
+     * Parameters   : int position
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the CustomLinkedList erase member function.
+     *   Removes an existing element at the specified position from the sparse matrix.
+     *
+     */
+    void erase(int position);
+
+    /*
+     *
+     * void bubbleSort();
+     *
+     * Summary:
+     *
+     *   Sorts the sparse matrix in ascending order using the bubblesort algorithm.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Sorts the sparse matrix elements in ascending order using the bubblesort algorithm.
+     *   Switches the data of two elements when the algorithm requires re-ordering.
+     *
+     */
+    void bubbleSort();
+
+    /*
+     *
+     * bool isSorted();
+     *
+     * Summary:
+     *
+     *   Function to state whether the sparse matrix elements are in ascending order or not.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Iterates through the sparse matrix.
+     *   Returns false if an element is found to be larger than the next element to the right.
+     *   Elements are considered sorted if they are in ascending order.
+     *
+     */
     bool isSorted();
 
-    // Operator overload member function declarations.
+    /*
+     *
+     * T operator()(int row, int col) const;
+     *
+     * Summary:
+     *
+     *   Parenthesis operator overload.
+     *
+     * Return Value: elem_it->value
+     *
+     * Description:
+     *
+     *   Returns the sparse matrix element data given a specified row and column.
+     *
+     */
     T operator()(int row, int col) const;
-    element<T>& operator[](int idx);
-    element<T> operator[](int idx) const;
+
+    /*
+     *
+     * element& operator[](int position);
+     *
+     * Summary:
+     *
+     *   Index operator overload.
+     *
+     * Return Value: m_matrix[position]
+     *
+     * Description:
+     *
+     *   Calls the CustomLinkedList index operator overload.
+     *
+     */
+    element& operator[](int position);
+
+    /*
+     *
+     * const element& operator[](int position) const;
+     *
+     * Summary:
+     *
+     *   Index operator overload.
+     *
+     * Return Value: m_matrix[position]
+     *
+     * Description:
+     *
+     *   Calls the CustomLinkedList index operator overload.
+     *
+     */
+    const element& operator[](int position) const;
+
+    /*
+     *
+     * CustomSparseMatrix& operator=(const CustomSparseMatrix<T>& other);
+     *
+     * Summary:
+     *
+     *   Copy assignment operator overload.
+     *
+     * Return Value: *this
+     *
+     * Description:
+     *
+     *   Overloads the assignment operator from an l-value reference.
+     *   Fundamental data types are copied from other.
+     *   The CustomLinkedList m_matrix from other is copied using its own copy assignment overload.
+     *
+     */
     CustomSparseMatrix& operator=(const CustomSparseMatrix<T>& other);
+
+    /*
+     *
+     * CustomSparseMatrix& operator=(CustomSparseMatrix<T>&& other);
+     *
+     * Summary:
+     *
+     *   Move assignment operator overload.
+     *
+     * Return Value: *this
+     *
+     * Description:
+     *
+     *   Overloads the assignment operator from an l-value reference.
+     *   Fundamental data types are copied from other.
+     *   The CustomLinkedList m_matrix from other is moved using its own move assignment overload.
+     *
+     */
     CustomSparseMatrix& operator=(CustomSparseMatrix<T>&& other);
 
     // Fully specialised template friend function declarations.
     friend std::ostream& operator<<<T>(std::ostream& out, CustomSparseMatrix<T>& M);
 };
 
-/*
-   Overloaded Parameterised constructor.
-   Creates an empty CustomSparseMatrix of specified row and column dimensions.
-*/
+// Private member function definitions begin here.
+
 template <typename T>
-CustomSparseMatrix<T>::CustomSparseMatrix(int rows, int cols) noexcept
+std::ostream& CustomSparseMatrix<T>::display(std::ostream& out) const
+{
+    if (!m_matrix.empty())
+    {
+        auto elem_it{ m_matrix.begin() };
+        for (auto i{ 0 }; i < static_cast<int>(m_rows); ++i)
+        {
+            for (auto j{ 0 }; j < static_cast<int>(m_cols); ++j)
+            {
+                if ((elem_it != m_matrix.end()) && (i == elem_it->data.row) && (j == elem_it->data.col))
+                {
+                    out << elem_it->data.value << " ";
+                    if (elem_it != m_matrix.end())
+                    {
+                        ++elem_it;
+                    }
+                }
+                else
+                {
+                    out << 0 << " ";
+                }
+            }
+            out << "\n";
+        }
+    }
+    return out;
+}
+
+// Private member function definitions end here.
+
+// Constructor and Destructor definitions begin here.
+
+template <typename T>
+CustomSparseMatrix<T>::CustomSparseMatrix(std::size_t rows, std::size_t cols) noexcept
     : m_rows{ rows }, m_cols{ cols }
 {
     std::cout << "Parameterised CustomSparseMatrix constructor called.\n";
 }
 
-/*
-   Overloaded copy constructor.
-   Member variables are initialised with copy values.
-   Example: CustomSparseMatrix A{ 5,5 };
-            CustomSparseMatrix B{ A }; creates a sparse matrix B that is a copy of A.
-*/
 template <typename T>
 CustomSparseMatrix<T>::CustomSparseMatrix(const CustomSparseMatrix<T>& other) noexcept
     : m_rows{ other.m_rows }, m_cols{ other.m_cols }, m_matrix{ other.m_matrix }
 {
     std::cout << "CustomSparseMatrix copy constructor called.\n";
-
 }
 
-/*
-   Overloaded move constructor.
-   Fundamental data type member variables are initialised with copy values.
-   The CustomArray m_matrix is initialised using its move constructor.
-*/
 template <typename T>
 CustomSparseMatrix<T>::CustomSparseMatrix(CustomSparseMatrix<T>&& other) noexcept
     : m_rows { other.m_rows }
     , m_cols{ other.m_cols }
-    , m_matrix{ static_cast<CustomArray<element<T>>&&>(other.m_matrix)}
+    , m_matrix{ static_cast<CustomLinkedList<element>&&>(other.m_matrix)}
 {
     std::cout << "CustomSparseMatrix move constructor called.\n";
 }
 
-/*
-   Overloaded destructor to print destruction call to the standard output.
-*/
 template <typename T>
-CustomSparseMatrix<T>::~CustomSparseMatrix()
+CustomSparseMatrix<T>::~CustomSparseMatrix() noexcept
 {
     std::cout << "CustomSparseMatrix destructor called.\n";
 }
 
-/*
-   Inserts a new element at a specified index into the CustomArray by calling the insertElement member function.
-*/
-template <typename T>
-void CustomSparseMatrix<T>::insertElement(element<T> e, int idx)
-{
-    std::cout << "CustomSparseMatrix insertElement(...) function called.\n";
-    m_matrix.insertElement(e,idx);
-}
+// Constructors and Destructors end here.
 
+// Operator overload definitions begin here.
 
-/*
-   Inserts a new element at the end of the the CustomArray by calling its appendElement member function.
-*/
 template <typename T>
-void CustomSparseMatrix<T>::appendElement(element<T> e)
+T CustomSparseMatrix<T>::operator()(int row, int col) const
 {
-    std::cout << "CustomSparseMatrix appendElement(...) function called.\n";
-    m_matrix.appendElement(e);
-}
-
-/*
-   Removes an element from the CustomArray m_matrix by calling its removeElement member function.
-*/
-template <typename T>
-void CustomSparseMatrix<T>::removeElement(int idx)
-{
-    std::cout << "CustomSparseMatrix removeElement(...) function called.\n";
-    m_matrix.removeElement(idx);
-}
-
-/*
-   Sorts elements in the CustomSparseMatrix by ascending row and column order using the bubble sort algorithm.
-   Used when outputting the array via the overloaded >> operator.
-*/
-template <typename T>
-void CustomSparseMatrix<T>::sortElements()
-{
-    std::cout << "CustomSparseMatrix sortElements(...) function called.\n";
-    for (int i{ 0 }; i < m_matrix.getLength() - 1; ++i)
+    for (auto elem_it{ m_matrix.begin() }; elem_it != m_matrix.end(); ++elem_it)
     {
-        for (int j{ 0 }; j < m_matrix.getLength() - 1 - i; ++j)
+        if ((elem_it->data.row == row) && (elem_it->data.col == col))
+        {
+            return elem_it->data.value;
+        }
+    }
+    return static_cast<T>(0);
+}
+
+template <typename T>
+typename CustomSparseMatrix<T>::element& CustomSparseMatrix<T>::operator[](int position)
+{
+    return m_matrix[position];
+}
+
+template <typename T>
+const typename CustomSparseMatrix<T>::element& CustomSparseMatrix<T>::operator[](int position) const
+{
+    return m_matrix[position];
+}
+
+template <typename T>
+CustomSparseMatrix<T>& CustomSparseMatrix<T>::operator=(const CustomSparseMatrix<T>& other)
+{
+    std::cout << "Overloaded copy assignment operator called.\n";
+    m_rows = other.m_rows;
+    m_cols = other.m_cols;
+    m_matrix = other.m_matrix;
+    return *this;
+}
+
+template <typename T>
+CustomSparseMatrix<T>& CustomSparseMatrix<T>::operator=(CustomSparseMatrix<T>&& other)
+{
+    std::cout << "Overloaded move assignment operator called.\n";
+    m_rows = other.m_rows;
+    m_cols = other.m_cols;
+    m_matrix = static_cast<CustomLinkedList<element>&&>(other.m_matrix);
+    return *this;
+}
+
+// Operator overload definitions end here.
+
+// Public member functions definitions begin here.
+
+template <typename T>
+void CustomSparseMatrix<T>::insert(int position, const element& e)
+{
+    try
+    {
+        if (e.row >= static_cast<int>(m_rows) || e.col >= static_cast<int>(m_cols))
+        {
+            throw std::out_of_range("Element must be within matrix!");
+        }
+        m_matrix.insert(position, e);
+    }
+    catch (const std::out_of_range& exception)
+    {
+        std::cerr << "Standard exception caught: " << exception.what()
+                  << "\nElement not added to matrix\n";
+        return;
+    }
+}
+
+template <typename T>
+void CustomSparseMatrix<T>::erase(int position)
+{
+    m_matrix.erase(position);
+}
+
+template <typename T>
+void CustomSparseMatrix<T>::bubbleSort()
+{
+    for (auto i{ 0 }; i < static_cast<int>(m_matrix.size()) - 1; ++i)
+    {
+        for (auto j{ 0 }; j < static_cast<int>(m_matrix.size()) - 1 - i; ++j)
         {
             if (m_matrix[j].row > m_matrix[j + 1].row)
             {
-                m_matrix.swapElements(m_matrix[j],m_matrix[j + 1]);
+                std::swap(m_matrix[j],m_matrix[j + 1]);
             }
             else if ((m_matrix[j].row == m_matrix[j + 1].row) && (m_matrix[j].col > m_matrix[j + 1].col))
             {
-                m_matrix.swapElements(m_matrix[j],m_matrix[j + 1]);
+                std::swap(m_matrix[j],m_matrix[j + 1]);
             }
         }
     }
 }
 
-/*
-   Function to declare whether the CustomSparseMatrix elements are in ascending order or not.
-*/
 template <typename T>
 bool CustomSparseMatrix<T>::isSorted()
 {
-    for (int i{ 0 }; i < m_matrix.getLength() - 1; ++i)
+    for (auto i{ 0 }; i < static_cast<int>(m_matrix.size()) - 1; ++i)
     {
         if (m_matrix[i].row > m_matrix[i + 1].row)
         {
@@ -189,121 +538,20 @@ bool CustomSparseMatrix<T>::isSorted()
     return 1;
 }
 
-/*
-   Default function for outputting a matrix.
-   Display() is used by the overloaded << operator function.
-*/
-template <typename T>
-std::ostream& CustomSparseMatrix<T>::Display(std::ostream& out) const
-{
-    auto elem_it{ m_matrix.cbegin() };
-    for (int i{ 0 }; i < m_rows; ++i)
-    {
-        for (int j{ 0 }; j < m_cols; ++j)
-        {
-            if ((i == elem_it->row) && (j == elem_it->col))
-            {
-                out << elem_it->value << " ";
-                if (elem_it != m_matrix.cend())
-                {
-                    ++elem_it;
-                }
-            }
-            else
-            {
-                out << 0 << " ";
-            }
-        }
-        out << "\n";
-    }
-    return out;
-}
+// Public member function definitions end here.
 
-/*
-   Member function to overload the parenthesis operator.
-   Used for indexing the CustomSparseMatrix to retrieve element values.
-   Only returns by value and should be used to retrieve data, not edit it.
-   To edit, use the overloaded subscript operator functions.
-*/
-template <typename T>
-T CustomSparseMatrix<T>::operator()(int row, int col) const
-{
-    for (auto elem_it{ m_matrix.cbegin() }; elem_it != m_matrix.cend(); ++elem_it)
-    {
-        if ((elem_it->row == row) && (elem_it->col = col))
-        {
-            return elem_it->value;
-        }
-    }
-    return static_cast<T>(0);
-}
+// Friend function definitions begin here.
 
-/*
-   Member function to overload the subscript operator.
-   Returns a reference to the element of the array at the specified index.
-   Element member variables can be accessed via dot notation and can be amended.
-   Example: CustomSparseMatrix<int> A{ 5,5 };
-            element<int> e{ 1,1,10 }; // creates an element of value 10.
-            A.appendElement(e); // adds element e to A at index 0.
-            A[0].value = 5; // amends the value of A at position 1,1 to 5.
-*/
-template <typename T>
-element<T>& CustomSparseMatrix<T>::operator[](int idx)
-{
-    return m_matrix[idx];
-}
-
-/*
-   Member function to overload the subscript operator.
-   Returns a copy of the element of the array at the specified index.
-*/
-template <typename T>
-element<T> CustomSparseMatrix<T>::operator[](int idx) const
-{
-    return m_matrix[idx];
-}
-
-/*
-   Member function to overload the assignment operator from an l-value reference.
-   Copy assigns the CustomSparseMatrix reference.
-*/
-template <typename T>
-CustomSparseMatrix<T>& CustomSparseMatrix<T>::operator=(const CustomSparseMatrix<T>& other)
-{
-    std::cout << "CustomSparseMatrix overloaded assignment operator (l-value reference argument).\n";
-    m_rows = other.m_rows;
-    m_cols = other.m_cols;
-    m_matrix = other.m_matrix;
-    return *this;
-}
-
-/*
-   Member function to overload the assignment operator from an l-value reference.
-   Copy assigns the CustomSparseMatrix fundamental data types.
-   Move assigns the CustomArray<element<T>> object.
-*/
-template <typename T>
-CustomSparseMatrix<T>& CustomSparseMatrix<T>::operator=(CustomSparseMatrix<T>&& other)
-{
-    std::cout << "CustomSparseMatrix overloaded assignment operator (r-value reference argument).\n";
-    m_rows = other.m_rows;
-    m_cols = other.m_cols;
-    m_matrix = static_cast<CustomArray<element<T>>&&>(other.m_matrix);
-    return *this;
-}
-
-/*
-   Friend function to overload the ostream operator.
-   Sorts the CustomSparseMatrix if required and calls the Display member function.
-*/
 template <typename T>
 std::ostream& operator<<(std::ostream& out, CustomSparseMatrix<T>& M)
 {
     if (!M.isSorted())
     {
-        M.sortElements();
+        M.bubbleSort();
     }
-    return M.Display(out);
+    return M.display(out);
 }
+
+// Friend functions definitions end here.
 
 #endif // CUSTOMSPARSEMATRIX_H_INCLUDED

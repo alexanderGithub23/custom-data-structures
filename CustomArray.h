@@ -2,404 +2,1228 @@
 #define CUSTOMARRAY_H_INCLUDED
 
 #include <iostream>
-#include <initializer_list>
+#include <cstddef>  // std::size_t
+#include <utility>  // std::swap, std::initializer_list
+#include <iterator> // std::forward_iterator_tag
 #include <cassert>
-#include <iterator>
 
-// The following are forward declarations of friend functions required for C++ templates.
 
-// The CustomArray class must be forward declared for template function declaration to be possible.
+/*
+ *
+ * File:    CustomArray.h
+ *
+ * Author:  Alexander R.
+ * Date:    2023
+ *
+ * Summary of File:
+ *
+ *   This file contains code for a custom array container in the form of a class template CustomArray.
+ *   Member functions of the class are available to add, remove, or manipulate data.
+ *   Friend functions of the class are available to apply basic probability set type operations.
+ *
+ *   The template class has been tested with the following data types:
+ *     * Integers
+ *     * Floats
+ *     * Doubles
+ *     * Characters
+ *     * C++ strings (std::string)
+ *
+ */
+
+
+// Forward declarations of class template CustomArray and associated friend functions begin here.
+// Required to support class template functionality.
+
+
+/*
+ *
+ *   Class Name: CustomArray
+ *
+ *   Purpose:
+ *
+ *     A custom array container class template.
+ *
+ *   Member Variables:
+ *
+ *     m_length
+ *       An unsigned integer (std::size_t) that tracks the number of elements in the array.
+ *     m_array_ptr
+ *       A pointer to dynamic array created in heap memory.
+ *
+ *
+ *   Member Functions:
+ *
+ *     isNull
+ *       Checks if m_array is a null pointer.
+ *     display
+ *       Prints the array data to the specified output stream.
+ *     deepCopy
+ *       Performs a deep copy of another array.
+ *     linearSearch
+ *       Searches linearly for the specified value.
+ *     binarySearch
+ *       Searches through a sorted array using the binary search algorithm.
+ *     size
+ *       Returns m_length
+ *     empty
+ *       Returns a bool False if m_length is zero. Else, returns True.
+ *     clear
+ *       Removes the array data from memory and the array.
+ *     resize
+ *       Slow resize function. All elements are kept in the array up to the new length.
+ *     insert
+ *       Inserts data into the array at the specified position.
+ *     erase
+ *       Removes data from the array at the specified position.
+ *     pushBack
+ *       Appends a new value to the end of the array.
+ *     pushFront
+ *       Inserts a new value at the start of the array.
+ *     popBack
+ *       Removes an existing value from the end of the array.
+ *     popFront
+ *       Removes an existing value from the start of the array.
+ *     reverse
+ *       Reverses the order of the array elements in place.
+ *     bubbleSort
+ *       Sorts the array in ascending order using the bubblesort algorithm.
+ *     isSorted
+ *       Function to state whether the array elements are in ascending order or not.
+ *     search
+ *       Searches the array for a specified value.
+ *     swap
+ *       Swaps array data nodes with another array.
+ *
+ */
 template <typename T>
 class CustomArray;
 
+/*
+ *
+ * template <typename T>
+ * std::ostream& operator<<(std::ostream& out, const CustomArray<T>& arr);
+ *
+ * Summary:
+ *
+ *    Standard output operator overload for a CustomArray array object.
+ *
+ * Return Value: None
+ *
+ * Description:
+ *
+ *   Standard output operator overload that has friend privileges within the CustomArray class.
+ *   Calls the private member function display.
+ *
+ */
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const CustomArray<T>& arr);
 
+/*
+ *
+ * template <typename T>
+ * CustomArray<T> merge(const CustomArray<T>& A, const CustomArray<T>& B);
+ *
+ * Summary:
+ *
+ *    Combines and sorts (ascending) two arrays.
+ *
+ * Return Value: CustomArray merged
+ *
+ * Description:
+ *
+ *   Function to merge two arrays that has friend privileges within the CustomArray class.
+ *   Items within both arrays are sorted into ascending order and placed into a new combined array.
+ *   Returns the combined array by value.
+ *
+ */
 template <typename T>
-CustomArray<T> mergeArrays(const CustomArray<T>& A, const CustomArray<T>& B);
+CustomArray<T> merge(const CustomArray<T>& A, const CustomArray<T>& B);
 
+/*
+ *
+ * template <typename T>
+ * CustomArray<T> setUnion(CustomArray<T> A, CustomArray<T> B);
+ *
+ * Summary:
+ *
+ *    Returns the set that is the union of arrays.
+ *
+ * Return Value: CustomArray unionArray
+ *
+ * Description:
+ *
+ *   Function to return the union of two arrays that has friend privileges within the CustomArray class.
+ *   Items within both arrays are sorted into ascending order and placed into a new combined array.
+ *   Returns the new combined array by value.
+ *
+ */
 template <typename T>
-CustomArray<T> unionArrays(const CustomArray<T>& A, const CustomArray<T>& B);
+CustomArray<T> setUnion(CustomArray<T> A, CustomArray<T> B);
 
+/*
+ *
+ * template <typename T>
+ * CustomArray<T> setDifference(CustomArray<T> A, CustomArray<T> B);
+ *
+ * Summary:
+ *
+ *    Returns the set that is the difference (relative compliment) of two arrays.
+ *
+ * Return Value: CustomArray difference
+ *
+ * Description:
+ *
+ *   Function to return the difference between two arrays that has friend privileges within the CustomArray class.
+ *   Items within both arrays are sorted into ascending order and placed into a new resulting array.
+ *   Returns the new resulting array by value.
+ *
+ */
 template <typename T>
-CustomArray<T> relComplimentArrays(const CustomArray<T>&A, const CustomArray<T>& B);
+CustomArray<T> setDifference(CustomArray<T> A, CustomArray<T> B);
 
+/*
+ *
+ * template <typename T>
+ * CustomArray<T> setIntersection(CustomArray<T> A, CustomArray<T> B);
+ *
+ * Summary:
+ *
+ *    Returns the set that is the intersection of two arrays.
+ *
+ * Return Value: CustomArray intersection
+ *
+ * Description:
+ *
+ *   Function to return the intersection of two arrays that has friend privileges within the CustomArray class.
+ *   Items within both arrays are sorted into ascending order and placed into a new resulting array.
+ *   Returns the new resulting array by value.
+ *
+ */
 template <typename T>
-CustomArray<T> intersectionArrays(const CustomArray<T>& A, const CustomArray<T>& B);
+CustomArray<T> setIntersection(CustomArray<T> A, CustomArray<T> B);
 
-template <typename T>
-CustomArray<T> operator+(CustomArray<T> A, CustomArray<T> B);
-
-template <typename T>
-CustomArray<T> operator-(CustomArray<T> A, CustomArray<T> B);
 
 // Forward declaration of template friend functions ends here.
 
-/*
-   Full template class definition.
-   The class defines a resizable array that is continguous in memory.
-   Member functions to add, remove, reverse, search and order elements are available.
-   Overloaded <<, + and - (binary), [] and = operators have been added.
-   Set theory operations can also be used via friend functions.
-*/
+
 template <typename T>
 class CustomArray
 {
 private:
-    // Private variables.
-    int m_arrayLength{};
-    T* m_array{};
 
-    // Private member function declarations.
-    bool isNull() { return m_array == nullptr; } // Used as a check for dynamic memory deletion.
-    void swapElements(T& elementOne, T& elementTwo);
-    int linearSearch(T element);
-    int binarySearch(T element);
-    std::ostream& Display(std::ostream& out) const;
+    std::size_t m_length{};
+    T* m_array_ptr{};
+
+    // isNull is used primarily as a check for dynamic memory deletion within member functions.
+    bool isNull() const { return m_array_ptr == nullptr; }
+
+    /*
+     *
+     * std::ostream& display(std::ostream& out) const;
+     *
+     * Summary:
+     *
+     *   Sends the array data to the standard output.
+     *
+     * Parameters   : std::ostream& out
+     *
+     * Return Value : std::ostream& out
+     *
+     * Description:
+     *
+     *   Prints each item in the array data to the terminal.
+     *   Called by the overloaded operator << friend function.
+     *   Contains specific overloads for a CustomArray<char> type.
+     *
+     * Example Output (default):
+     *   1 2 3
+     *
+     * Example Output (char)
+     *   abc
+     *
+     */
+    std::ostream& display(std::ostream& out) const;
+
+    /*
+     *
+     * void deepCopy(const CustomArray<T>& other);
+     *
+     * Summary:
+     *
+     *   Performs a deep copy of another array.
+     *
+     * Parameters   : CustomArray<T>& other
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Allocates a new portion of memory equal in size and structure to the other linked-list.
+     *   Copies the values of the other linked-list to the newly allocated memory.
+     *   Called by the CustomArray copy constructor and overloaded copy assignment member function.
+     *
+     */
+    void deepCopy(const CustomArray<T>& other);
+
+    /*
+     *
+     * bool linearSearch(const T& value);
+     *
+     * Summary:
+     *
+     *   Searches linearly for the specified value.
+     *
+     * Parameters   : const T& value
+     *
+     * Return Value : int index or -1.
+     *
+     * Description:
+     *
+     *   Beginning at the first element in array, searches linearly for the specified value.
+     *   Returns either the element index of the first element that is equal to value, or -1.
+     *
+     */
+    int linearSearch(const T& value);
+
+    /*
+     *
+     * int binarySearch(const T& value);
+     *
+     * Summary:
+     *
+     *   Searches through a sorted array using the binary search algorithm.
+     *
+     * Parameters   : const T& value
+     *
+     * Return Value : int index or -1.
+     *
+     * Description:
+     *
+     *   Beginning at the first element in array, searches for the specified value using a binary search.
+     *   Returns either the element index of the first element that is equal to value, or -1.
+     *
+     */
+    int binarySearch(const T& value);
+
 public:
-    // Constructor and destructor declarations.
+
+    // An overloaded default constructor that writes a message to the standard output.
     CustomArray() noexcept;
-    CustomArray(std::initializer_list<T> lst) noexcept;
-    CustomArray(const CustomArray<T>& arr) noexcept;
-    CustomArray(CustomArray<T>&& arr) noexcept;
-    ~CustomArray();
+
+    /*
+     *
+     * CustomArray(std::initializer_list<T> elements) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises an array from a std::initializer_list.
+     *
+     * Parameters: std::initializer_list<T> elements
+     *
+     * Description:
+     *
+     *   Copies the values of a std::initializer_list to an array in heap memory.
+     *   Matches the length of the array to the length of the std::initializer_list.
+     *
+     */
+    CustomArray(std::initializer_list<T> elements) noexcept;
+
+    /*
+     *
+     * CustomArray(const CustomArray<T>& other) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises an array from another array.
+     *
+     * Parameters: CustomArray<T>& other
+     *
+     * Description:
+     *
+     *   Allocates a new portion of memory equal in size and structure to the other array.
+     *   Using deepCopy, copies the values of the other array to the newly allocated memory.
+     *
+     */
+    CustomArray(const CustomArray<T>& other) noexcept;
+
+    /*
+     *
+     * CustomArray(CustomArray<T>&& other) noexcept;
+     *
+     * Summary:
+     *
+     *   Initialises an array from another array, using move semantics.
+     *
+     * Parameters   : CustomLinkedList<T>&& other
+     *
+     * Description:
+     *
+     *   Switches the memory addreses of the linked-list and other linked-list pointers.
+     *   Sets the pointer addresses of the linked-list other to nullptr.
+     *
+     */
+    CustomArray(CustomArray<T>&& other) noexcept;
+
+    /*
+     *
+     * template <typename InputIterator>
+     * CustomArray(InputIterator first, InputIterator last);
+     *
+     * Summary:
+     *
+     *   Initialises an array from another standard library container.
+     *
+     * Parameters   : InputIterator first, InputIterator last
+     *
+     * Description:
+     *
+     *   Uses two iterators that are compatible with containers in the standard library.
+     *   Copies the data within a standard library container to the array.
+     *
+     */
+    template <typename InputIterator>
+    CustomArray(InputIterator first, InputIterator last) noexcept;
+
+    /*
+     *
+     * ~CustomArray() noexcept;
+     *
+     * Summary:
+     *
+     *   Frees each linked-list node in memory before destoying the linked-list.
+     *
+     * Description:
+     *
+     *   Uses clear to erase all linked-list nodes before destroying the linked-list.
+     *
+     */
+    ~CustomArray() noexcept;
 
     // Public member function declarations.
-    int getLength() { return m_arrayLength; }
-    void clearArray();
-    void resizeArray(int newLength);
-    void insertElement(T val, int idx);
-    void removeElement(int idx);
-    void appendElement(T val);
-    void reverseArray();
-    void bubbleSort();
-    bool isSorted();
-    int searchElement(T element);
+    std::size_t size() const { return m_length; }
+    bool empty() const { return !m_length; }
 
-    // Operator overload member function declarations.
-    T& operator[](int idx);
-    T operator[](int idx) const;
-    CustomArray& operator=(const CustomArray<T>& arr);
-    CustomArray& operator=(CustomArray<T>&& arr);
-    CustomArray& operator=(std::initializer_list<T> lst);
+    /*
+     *
+     * void clear();
+     *
+     * Summary:
+     *
+     *   Removes the array data from memory and the array.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Removes the array data from the heap.
+     *   Sets the array pointer to nullptr.
+     *   Sets the array size to zero.
+     *
+     */
+    void clear();
+
+    /*
+     *
+     * void resize(std::size_t length);
+     *
+     * Summary:
+     *
+     *   Slow resize function. All elements are kept in the array up to the new length.
+     *
+     * Parameters   : int length
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Creates a temporary array with the size specified length.
+     *   Copies elements from the existing array to the new temporary array
+     *   Deletes the existing array from memory and assigns the array pointer to the new arrary
+     *   Warning! Elements at a position greater than the new length will be dropped from the array.
+     *
+     */
+    void resize(std::size_t length);
+
+    /*
+     *
+     * void insert(int position, const T& value);
+     *
+     * Summary:
+     *
+     *   Inserts data into the array at the specified position.
+     *
+     * Parameters   : int position, const T& value
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Creates a new temporary array in the heap.
+     *   Copies values from the array to the new temporary array, with the additional value.
+     *   Deletes the existing array from heap memory.
+     *   Points the CustomArray pointer to the newly created temporary array.
+     *   Increments the length by one.
+     *   Support negative indexing!
+     *
+     */
+    void insert(int position, const T& value);
+
+    /*
+     *
+     * void erase(int position);
+     *
+     * Summary:
+     *
+     *   Removes data from the array at the specified position.
+     *
+     * Parameters   : int position
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Creates a new temporary array in the heap.
+     *   Copies values from the array to the new temporary array, except data at the specified position.
+     *   Deletes the existing array from heap memory.
+     *   Points the CustomArray to the newly created temporary array.
+     *   Decrements the length by one.
+     *   Support negative indexing!
+     *
+     */
+    void erase(int position);
+
+    /*
+     *
+     * void pushBack(const T& value);
+     *
+     * Summary:
+     *
+     *   Appends a new value to the end of the array.
+     *
+     * Parameters   : const T& value
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the insert function with position equal to the current length of the array.
+     *
+     */
+    void pushBack(const T& value);
+
+    /*
+     *
+     * void pushFront(const T& value);
+     *
+     * Summary:
+     *
+     *   Inserts a new value at the start of the array.
+     *
+     * Parameters   : const T& value
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the insert function with position equal to zero.
+     *
+     */
+    void pushFront(const T& value);
+
+    /*
+     *
+     * void popBack();
+     *
+     * Summary:
+     *
+     *   Removes an existing value from the end of the array.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the erase function with position equal to the current length of the array.
+     *
+     */
+    void popBack();
+
+    /*
+     *
+     * void popFront();
+     *
+     * Summary:
+     *
+     *   Removes an existing value from the start of the array.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Calls the erase function with position equal to zero.
+     *
+     */
+    void popFront();
+
+    /*
+     *
+     * void reverse();
+     *
+     * Summary:
+     *
+     *   Reverses the order of the array elements in place.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Iterates forwards and backwards through the array (from the start and end).
+     *   Each iteration, the iterator values are swapped using std::swap.
+     *   This results in a permanent change to the array.
+     *
+     */
+    void reverse();
+
+    /*
+     *
+     * void bubbleSort();
+     *
+     * Summary:
+     *
+     *   Sorts the array in ascending order using the bubblesort algorithm.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Sorts the array in ascending order using the bubblesort algorithm.
+     *   This results in a permanent change to the array.
+     *
+     */
+    void bubbleSort();
+
+    /*
+     *
+     * bool isSorted();
+     *
+     * Summary:
+     *
+     *   Function to state whether the array elements are in ascending order or not.
+     *
+     * Parameters   : None
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Iterates through the array.
+     *   Returns false if an element is found to be larger than the next element to the right.
+     *   Elements are considered sorted if they are in ascending order.
+     *
+     */
+    bool isSorted();
+
+    /*
+     *
+     * int search(const T& value);
+     *
+     * Summary:
+     *
+     *   Searches the array for a specified value.
+     *
+     * Parameters   : const T& value
+     *
+     * Return Value : int index or -1.
+     *
+     * Description:
+     *
+     *   Identifies whether the array is sorted or not, using isSorted().
+     *   If the array is sorted, performs a binary search using binarySearch().
+     *   If the array isn't sorted, performs a linear search using linearSearch().
+     *   Returns either the index position of the elements that matches value, or -1.
+     *
+     */
+    int search(const T& value);
+
+    /*
+     *
+     * void swap(CustomArray<T>& other);
+     *
+     * Summary:
+     *
+     *   Swaps array data nodes with another array.
+     *
+     * Parameters   : CustomArray<T>& other
+     *
+     * Return Value : None
+     *
+     * Description:
+     *
+     *   Switches the m_array_ptr of the array with other.
+     *
+     */
+    void swap(CustomArray<T>& other);
+
+    /*
+     *
+     * T& operator[](int position);
+     *
+     * Summary:
+     *
+     *   Index operator overload.
+     *
+     * Return Value: T& m_array_ptr[position]
+     *
+     * Description:
+     *
+     *   Returns the element of the array at the specified position.
+     *   Support negative indexing!
+     *
+     */
+    T& operator[](int position);
+
+    /*
+     *
+     * T& operator[](int position);
+     *
+     * Summary:
+     *
+     *   Index operator overload.
+     *
+     * Return Value: const T& m_array_ptr[position]
+     *
+     * Description:
+     *
+     *   Returns the element of the array at the specified position.
+     *   Support negative indexing!
+     *
+     */
+    const T& operator[](int position) const;
+
+    /*
+     *
+     * CustomArray& operator=(const CustomArray<T>& other);
+     *
+     * Summary:
+     *
+     *   Copy assignment operator overload.
+     *
+     * Return Value: *this
+     *
+     * Description:
+     *
+     *   Clears the existing array.
+     *   Allocates a new portion of memory equal in size and structure to the array other.
+     *   Using deepCopy, copies the values of the other linked-list to the newly allocated memory.
+     *
+     */
+    CustomArray& operator=(const CustomArray<T>& other);
+
+    /*
+     *
+     * CustomArray& operator=(CustomArray<T>&& other);
+     *
+     * Summary:
+     *
+     *   Move assignment operator overload.
+     *
+     * Return Value: *this
+     *
+     * Description:
+     *
+     *   Switches array pointer addresses and lengths with the temporary/anonymous array object other.
+     *
+     */
+    CustomArray& operator=(CustomArray<T>&& other);
+
+    /*
+     *
+     * CustomArray& operator=(std::initializer_list<T> elements);
+     *
+     * Summary:
+     *
+     *   Copy assignment operator overload from a std::initializer_list.
+     *
+     * Return Value: *this
+     *
+     * Description:
+     *
+     *   Uses the copy and swap idiom.
+     *   Creates a temporary array with the std::initializer_list elements.
+     *   Switches pointer addresses and lengths with the temporary array.
+     *
+     */
+    CustomArray& operator=(std::initializer_list<T> elements);
 
     // Fully specialised template friend function declarations.
     friend std::ostream& operator<<<T>(std::ostream& out, const CustomArray<T>& arr);
-    friend CustomArray<T> mergeArrays<T>(const CustomArray<T>& A, const CustomArray<T>& B);
-    friend CustomArray<T> unionArrays<T>(const CustomArray<T>& A, const CustomArray<T>& B);
-    friend CustomArray<T> relComplimentArrays<T>(const CustomArray<T>&A, const CustomArray<T>& B);
-    friend CustomArray<T> intersectionArrays<T>(const CustomArray<T>& A, const CustomArray<T>& B);
-    friend CustomArray<T> operator+<T>(CustomArray<T> A, CustomArray<T> B);
-    friend CustomArray<T> operator-<T>(CustomArray<T> A, CustomArray<T> B);
+    friend CustomArray<T> merge<T>(const CustomArray<T>& A, const CustomArray<T>& B);
+    friend CustomArray<T> setUnion<T>(CustomArray<T> A, CustomArray<T> B);
+    friend CustomArray<T> setDifference<T>(CustomArray<T> A, CustomArray<T> B);
+    friend CustomArray<T> setIntersection<T>(CustomArray<T> A, CustomArray<T> B);
 
-    // Iterator class definition.
-    class const_iterator : public std::iterator<std::input_iterator_tag, T, int, T*, T&>
+    /*
+     *
+     *   Class Name: Iterator
+     *
+     *   Purpose:
+     *     A bidirectional non-const iterator for CustomArray<T> objects.
+     *
+     */
+    class Iterator
     {
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
     private:
-        T* m_ptr{};
+        pointer m_ptr;
     public:
-        explicit const_iterator(T* ptr = nullptr) : m_ptr{ ptr } {}
-        const_iterator(const const_iterator& it) : m_ptr{ it.m_ptr } {}
-        const_iterator& operator++() { ++m_ptr; return *this; }
-        const_iterator operator++(int) { const_iterator tmp{ *this }; operator++(); return tmp; }
-        bool operator==(const_iterator other) const { return m_ptr == other.m_ptr; }
-        bool operator!=(const_iterator other) const { return m_ptr != other.m_ptr; }
-        T& operator*() const { return *m_ptr; }
-        T* operator->() const { return m_ptr; }
+        Iterator(pointer ptr = nullptr) : m_ptr{ ptr } {}
+        Iterator(const Iterator& other) : m_ptr{ other.m_ptr } {}
+        reference operator*() const { return *m_ptr; }
+        pointer operator->() const { return m_ptr; }
+        Iterator& operator++() { ++m_ptr; return *this; }
+        Iterator operator++(int) { Iterator tmp{ *this }; ++(*this); return tmp; }
+        Iterator& operator--() { --m_ptr; return *this; }
+        Iterator operator--(int) { Iterator tmp{ *this }; --(*this); return tmp; }
+        friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; }
+        friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; }
     };
 
-    // CustomArray iterator functions.
-    const_iterator cbegin() const { return const_iterator{ m_array }; }
-    const_iterator cend() const { return const_iterator{ m_array + m_arrayLength }; }
+    Iterator begin() { return Iterator{ m_array_ptr }; }
+    Iterator end() { return Iterator{ m_array_ptr + m_length }; }
+
+    /*
+     *
+     *   Class Name: ConstIterator
+     *
+     *   Purpose:
+     *     A bidirectional const iterator for const CustomArray<T> objects.
+     *
+     */
+    class ConstIterator
+    {
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const T*;
+        using reference = const T&;
+    private:
+        pointer m_ptr;
+    public:
+        ConstIterator(pointer ptr = nullptr) : m_ptr{ ptr } {}
+        ConstIterator(const ConstIterator& other) : m_ptr{ other.m_ptr } {}
+        reference operator*() const { return *m_ptr; }
+        pointer operator->() const { return m_ptr; }
+        ConstIterator& operator++() { ++m_ptr; return *this; }
+        ConstIterator operator++(int) { ConstIterator tmp{ *this }; ++(*this); return tmp; }
+        ConstIterator& operator--() { --m_ptr; return *this; }
+        ConstIterator operator--(int) { ConstIterator tmp{ *this }; --(*this); return tmp; }
+        friend bool operator==(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr == b.m_ptr; }
+        friend bool operator!=(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr != b.m_ptr; }
+    };
+
+    ConstIterator begin() const { return ConstIterator{ m_array_ptr }; }
+    ConstIterator end() const { return ConstIterator{ m_array_ptr + m_length }; }
+
 };
 
-// Constructor definitions begin here.
 
-/*
-   Overloaded default constructor to print creation to the terminal.
-*/
+// Private member function definitions begin here.
+
+template<typename T>
+std::ostream& CustomArray<T>::display(std::ostream& out) const
+{
+    auto it{ begin() };
+    T* last{ m_array_ptr + m_length - 1 };
+    if (m_length)
+    {
+        do
+        {
+            if (it == last)
+            {
+                out << *it;
+            }
+            else
+            {
+                out << *it << " ";
+            }
+        }
+        while (++it != end());
+    }
+    return out;
+}
+
+template<>
+std::ostream& CustomArray<char>::display(std::ostream& out) const
+{
+    for (auto it{begin()}; it != end(); ++it)
+    {
+        out << *it;
+    }
+    return out;
+}
+
+template<typename T>
+void CustomArray<T>::deepCopy(const CustomArray<T> &other)
+{
+    if (other.m_length > 0)
+    {
+        m_length = other.m_length;
+        m_array_ptr = new T[m_length];
+        for (int idx{ 0 }; idx < static_cast<int>(m_length); ++idx)
+        {
+            m_array_ptr[idx] = other.m_array_ptr[idx];
+        }
+    }
+}
+
+template <typename T>
+int CustomArray<T>::linearSearch(const T& value)
+{
+    for (int index{ 0 }; index < static_cast<int>(m_length); ++index)
+    {
+        if (value == m_array_ptr[index])
+        {
+            return index;
+        }
+    }
+    return -1;
+}
+
+template <typename T>
+int CustomArray<T>::binarySearch(const T& value)
+{
+    assert(isSorted() && "Array elements must be in ascending order.");
+    int index{};
+    int low{};
+    int high{ static_cast<int>(m_length) - 1 };
+    while (low <= high)
+    {
+        index = (low + high ) / 2;
+        if (value == m_array_ptr[index])
+        {
+            return index;
+        }
+        else if (value < m_array_ptr[index])
+        {
+            high = index - 1;
+        }
+        else
+        {
+            low = index + 1;
+        }
+    }
+    return -1;
+}
+
+// Private member function definitions end here.
+
+// Constructor and Destructor definitions begin here.
+
 template <typename T>
 CustomArray<T>::CustomArray() noexcept
 {
     std::cout << "CustomArray default constructor called.\n";
 }
 
-/*
-   Constructor to accept list initialisation.
-   Member variables are initialised with default values, then copy assigned in the function body.
-   Example: CustomArray A{ 1,2,3 }; creates an array A with length 3 and elements [1,2,3].
-*/
 template <typename T>
-CustomArray<T>::CustomArray(std::initializer_list<T> lst) noexcept
+CustomArray<T>::CustomArray(std::initializer_list<T> elements) noexcept
 {
-    std::cout << "CustomArray list-initialised constructor called.\n";
-    if (lst.size() > 0)
+    std::cout << "CustomArray list-initialised constructor called.\n" ;
+    if (elements.size() > 0)
     {
-        m_arrayLength = static_cast<int>(lst.size());
-        m_array = new T[lst.size()];
+        m_length = elements.size();
+        m_array_ptr = new T[elements.size()];
         int counter{ 0 };
-        for (auto element : lst)
+        for (auto element : elements)
         {
-            m_array[counter++] = element;
+            m_array_ptr[counter++] = element;
         }
     }
 }
 
-/*
-   Overloaded copy constructor.
-   Member variables are initialised with default values, then copy assigned in the function body.
-   Example: CustomArray A{ 1,2,3 };
-            CustomArray B{ A };     creates an array B with length 3 and elements [1,2,3].
-*/
 template <typename T>
-CustomArray<T>::CustomArray(const CustomArray<T>& arr) noexcept
+CustomArray<T>::CustomArray(const CustomArray<T>& other) noexcept
 {
-    std::cout << "CustomArray reference copy constructor called.\n";
-    if (arr.m_arrayLength > 0)
-    {
-        m_arrayLength = arr.m_arrayLength;
-        m_array = new T[m_arrayLength];
-        for (int idx{ 0 }; idx < m_arrayLength; ++idx)
-        {
-            m_array[idx] = arr.m_array[idx];
-        }
-    }
+    std::cout << "CustomArray copy constructor called.\n";
+    deepCopy(other);
 }
 
-/*
-   Overloaded move constructor.
-   Member variables are initialised with default values.
-   Member variables take the place of the r-value reference array in the function body.
-*/
 template <typename T>
-CustomArray<T>::CustomArray(CustomArray<T>&& arr) noexcept
+CustomArray<T>::CustomArray(CustomArray<T>&& other) noexcept
 {
     std::cout << "CustomArray move constructor called.\n";
-    if (arr.m_arrayLength > 0)
+    if (other.m_length > 0)
     {
-        m_arrayLength = arr.m_arrayLength;
-        m_array = arr.m_array;
-        arr.m_arrayLength = 0;
-        arr.m_array = nullptr;
+        m_length = other.m_length;
+        m_array_ptr = other.m_array_ptr;
+        other.m_length = 0;
+        other.m_array_ptr = nullptr;
     }
 }
 
-/*
-   Overloaded destructor to delete the dynamically allocated array in memory.
-*/
 template <typename T>
-CustomArray<T>::~CustomArray()
+template <typename InputIterator>
+CustomArray<T>::CustomArray(InputIterator first, InputIterator last) noexcept
+{
+    std::cout << "CustomLinkedList (iterator) copy constructor called.\n";
+    while (first != last)
+    {
+        pushBack(*first);
+        ++first;
+    }
+}
+
+template <typename T>
+CustomArray<T>::~CustomArray() noexcept
 {
     std::cout << "CustomArray destructor called.\n";
-    if (!isNull()) { delete[] m_array; }
+    clear();
 }
 
-/*
-   Swap two elements in an array using move semantics.
-*/
-template <typename T>
-void CustomArray<T>::swapElements(T& elementOne, T& elementTwo)
-{
-    T tmp { static_cast<T&&>(elementOne) };
-    elementOne = static_cast<T&&>(elementTwo);
-    elementTwo = static_cast<T&&>(tmp);
-}
+// Constructor and Destructor definitions end here.
 
-/*
-   Default function for outputting an array.
-   Display() is used by the overloaded << operator function.
-*/
+// Operator overload definitions begin here.
+
 template <typename T>
-std::ostream& CustomArray<T>::Display(std::ostream& out) const
+T& CustomArray<T>::operator[](int position)
 {
-    for (int i{ 0 }; i < m_arrayLength; ++i)
+    if (position < 0)
     {
-        out << i << ". " << m_array[i] << "\n";
+        position = static_cast<int>(m_length) - (abs(position) % static_cast<int>(m_length));
+        return m_array_ptr[position];
     }
-    return out;
-}
 
-/*
-   Specialised Display() function for char types.
-   Example: CustomArray A{ 'a','b','c' };
-*/
-template<>
-std::ostream& CustomArray<char>::Display(std::ostream& out) const
-{
-    for (int i{ 0 }; i < m_arrayLength; ++i)
+    if (position > static_cast<int>(m_length))
     {
-        out << m_array[i];
+        return m_array_ptr[m_length];
     }
-    out << "\n";
-    return out;
+
+    return m_array_ptr[position];
 }
 
-/*
-   Specialised Display() function for const char* types.
-   Example: CustomArray A{ "Hello World" };
-*/
-template<>
-std::ostream& CustomArray<const char*>::Display(std::ostream& out) const
+template <typename T>
+const T& CustomArray<T>::operator[](int position) const
 {
-    for (int i{ 0 }; i < m_arrayLength; ++i)
+    if (position < 0)
     {
-        out << m_array[i];
+        position = static_cast<int>(m_length) - (abs(position) % static_cast<int>(m_length));
+        return m_array_ptr[position];
     }
-    out << "\n";
-    return out;
-}
 
-/*
-   Quickly wipes the array.
-   Results in length zero and a null array pointer.
-*/
-template <typename T>
-void CustomArray<T>::clearArray()
-{
-    std::cout << "clearArray() function called.\n";
-    m_arrayLength = 0;
-    if (!isNull()) { delete[] m_array; }
-    m_array = nullptr;
-}
-
-/*
-   Slow resize function. All elements are kept in the array up to the new length.
-   Warning! Elements at index greater than the new length will be dropped from the array.
-*/
-template <typename T>
-void CustomArray<T>::resizeArray(int newLength)
-{
-    std::cout << "resizeArray(...) function called.\n";
-    if (m_arrayLength == newLength) { return; }
-    if (newLength <= 0)
+    if (position > static_cast<int>(m_length))
     {
-        clearArray();
+        return m_array_ptr[m_length];
+    }
+
+    return m_array_ptr[position];
+}
+
+template <typename T>
+CustomArray<T>& CustomArray<T>::operator=(const CustomArray<T>& other)
+{
+    clear();
+    deepCopy(other);
+    return *this;
+}
+
+template <typename T>
+CustomArray<T>& CustomArray<T>::operator=(CustomArray<T>&& other)
+{
+    swap(other);
+    return *this;
+}
+
+template <typename T>
+CustomArray<T>& CustomArray<T>::operator=(std::initializer_list<T> elements)
+{
+    CustomArray<T> temp{ elements };
+    swap(temp);
+    return *this;
+}
+
+// Operator overload definitions end here.
+
+// Public member functions definitions begin here.
+
+template <typename T>
+void CustomArray<T>::clear()
+{
+    m_length = 0;
+    if (!isNull()) { delete[] m_array_ptr; }
+    m_array_ptr = nullptr;
+}
+
+template <typename T>
+void CustomArray<T>::resize(std::size_t length)
+{
+    if (m_length == length) { return; }
+
+    try
+    {
+        T* new_array_ptr { new T[length]{} };
+        auto elementsToCopy{ (length > m_length) ? m_length : length };
+        for (auto position{ 0 }; position < static_cast<int>(elementsToCopy); ++position)
+        {
+            new_array_ptr[position] = m_array_ptr[position];
+        }
+        delete[] m_array_ptr;
+        m_array_ptr = new_array_ptr;
+        m_length = length;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Standard exception caught: " << e.what() << "\n"
+                  << "Length of array remains " << size() << "\n";
         return;
     }
-    int elementsToCopy{ (newLength > m_arrayLength)? m_arrayLength : newLength };
-    T* newArray{ new T[newLength]{} };
-    for (int idx{ 0 }; idx < elementsToCopy; ++idx)
-    {
-        newArray[idx] = m_array[idx];
-    }
-    delete[] m_array;
-    m_array = newArray;
-    m_arrayLength = newLength;
 }
 
-/*
-   Inserts a new element into the array.
-   The array length is also increased by one.
-*/
 template <typename T>
-void CustomArray<T>::insertElement(T val, int idx)
+void CustomArray<T>::insert(int position, const T& value)
 {
-    std::cout << "insertElement(...) function called.\n";
-    assert(idx >= 0 && idx <= m_arrayLength && "Index is out of range.");
-    T* newArray{ new T[m_arrayLength + 1] };
+    if (position < 0)
+    {
+        position = static_cast<int>(m_length) - (abs(position) % static_cast<int>(m_length));
+        insert(position, value);
+        return;
+    }
+
+    if (position > static_cast<int>(m_length))
+    {
+        insert(static_cast<int>(m_length), value);
+        return;
+    }
+
+    T* new_array_ptr { new T[m_length + 1] };
     if (!isNull())
     {
-        for (int before{ 0 }; before < idx; ++before)
+        for (int before{ 0 }; before < position; ++before)
         {
-            newArray[before] = m_array[before];
+            new_array_ptr[before] = m_array_ptr[before];
         }
-        for (int after{ idx }; after < m_arrayLength; ++after)
+        for (int after{ position }; after < static_cast<int>(m_length); ++after)
         {
-            newArray[after + 1] = m_array[after];
+            new_array_ptr[after + 1] = m_array_ptr[after];
         }
-        delete[] m_array;
+        delete[] m_array_ptr;
     }
-    newArray[idx] = val;
-    m_array = newArray;
-    ++m_arrayLength;
+    new_array_ptr[position] = value;
+    m_array_ptr = new_array_ptr;
+    new_array_ptr = nullptr;
+    ++m_length;
 }
 
-/*
-   Removes an element at specified index from the array.
-   The length of the array is also reduced by one.
-*/
 template <typename T>
-void CustomArray<T>::removeElement(int idx)
+void CustomArray<T>::erase(int position)
 {
-    std::cout << "removeElement(...) function called.\n";
-    if (m_arrayLength == 0 && isNull()) { return; }
-    assert(idx >= 0 && idx < m_arrayLength && "Index is out of range.");
-    if (m_arrayLength == 1)
+    if (empty()) { return; }
+
+    if (m_length == 1)
     {
-        clearArray();
+        clear();
         return;
     }
-    T* newArray{ new T[m_arrayLength - 1] };
-    for (int before{ 0 }; before < idx; ++before)
+
+    if (position < 0)
     {
-        newArray[before] = m_array[before];
+        position = static_cast<int>(m_length) - (abs(position) % static_cast<int>(m_length));
+        erase(position);
+        return;
     }
-    for (int after{ idx + 1 }; after < m_arrayLength; ++after)
+
+    if (position > static_cast<int>(m_length))
     {
-        newArray[after - 1] = m_array[after];
+        erase(static_cast<int>(m_length));
+        return;
     }
-    delete[] m_array;
-    m_array = newArray;
-    --m_arrayLength;
+
+    T* new_array_ptr { new T[m_length - 1] };
+    for (int before{ 0 }; before < position; ++before)
+    {
+        new_array_ptr[before] = m_array_ptr[before];
+    }
+    for (int after{ position + 1 }; after < m_length; ++after)
+    {
+        new_array_ptr[after - 1] = m_array_ptr[after];
+    }
+    delete[] m_array_ptr;
+    m_array_ptr = new_array_ptr;
+    new_array_ptr = nullptr;
+    --m_length;
 }
 
-/*
-   Adds an element to the end of the array.
-   The length of the array is also increased by one.
-*/
 template <typename T>
-void CustomArray<T>::appendElement(T val)
+void CustomArray<T>::pushBack(const T& value)
 {
-    std::cout << "appendElement(...) function called.\n";
-    insertElement(val,m_arrayLength);
+    insert(static_cast<int>(m_length),value);
 }
 
-/*
-   Flips the order of elements in the array.
-   This results in a permanent change to the array.
-   Example: CustomArray A{ 1,2,3 }; becomes CustomArray A{ 3,2,1 };
-*/
 template <typename T>
-void CustomArray<T>::reverseArray()
+void CustomArray<T>::pushFront(const T& value)
 {
-    std::cout << "reverseArray(...) function called.\n";
-    for (int i{ 0 }, j{ m_arrayLength - 1 }; i < j; ++i, --j)
-    {
-        swapElements(m_array[i],m_array[j]);
-    }
+    insert(0,value);
 }
 
-/*
-   Sorts the array in ascending order using the famous bubble sort algorithm.
-   Example: CustomArray A{ 4,2,3,1 } becomes CustomArray A{ 1,2,3,4 };
-   This results in a permanent change to the array.
-*/
+template <typename T>
+void CustomArray<T>::popBack()
+{
+    erase(static_cast<int>(m_length));
+}
+
+template <typename T>
+void CustomArray<T>::popFront()
+{
+    erase(0);
+}
+
+template <typename T>
+void CustomArray<T>::reverse()
+{
+    auto forward_it{ begin() };
+    auto backward_it{ m_array_ptr + m_length  - 1 };
+    do
+    {
+        std::swap(*forward_it,*backward_it);
+        ++forward_it;
+        --backward_it;
+    }
+    while (forward_it != backward_it);
+}
+
 template <typename T>
 void CustomArray<T>::bubbleSort()
 {
-    std::cout << "bubbleSort(...) function called.\n";
-    for (int i{ 0 }; i < m_arrayLength - 1; ++i)
+    for (int i{ 0 }; i < static_cast<int>(m_length) - 1; ++i)
     {
-        for (int j{ 0 }; j < m_arrayLength - 1 - i; ++j)
+        for (int j{ 0 }; j < static_cast<int>(m_length) - 1 - i; ++j)
         {
-            if (m_array[j] > m_array[j + 1])
+            if (m_array_ptr[j] > m_array_ptr[j + 1])
             {
-                swapElements(m_array[j],m_array[j + 1]);
+                std::swap(m_array_ptr[j],m_array_ptr[j + 1]);
             }
         }
     }
 }
 
-/*
-   Function to declare whether the array elements are in ascending order or not.
-*/
 template <typename T>
 bool CustomArray<T>::isSorted()
 {
-    std::cout << "isSorted() function called.\n";
-    for (int i{ 0 }; i < m_arrayLength - 1; ++i)
+    for (int i{ 0 }; i < static_cast<int>(m_length) - 1; ++i)
     {
-        if (m_array[i] > m_array[i + 1])
+        if (m_array_ptr[i] > m_array_ptr[i + 1])
         {
             return 0;
         }
@@ -407,354 +1231,147 @@ bool CustomArray<T>::isSorted()
     return 1;
 }
 
-/*
-   Private linear search member function.
-   Searches for an element in the array from front to back.
-   Returns the index of the element, or -1 if the element is not found.
-   This is the algorithm used for searching through unsorted arrays in the searchElement member function.
-*/
 template <typename T>
-int CustomArray<T>::linearSearch(T element)
+int CustomArray<T>::search(const T& value)
 {
-    std::cout << "linearSearch(...) function called.\n";
-    for (int idx{ 0 }; idx < m_arrayLength; ++idx)
-    {
-        if (element == m_array[idx])
-        {
-            return idx;
-        }
-    }
-    return -1;
-}
-
-/*
-   Private binary search member function.
-   Searches through the array using the famous binary search algorithm.
-   Returns the index of the element, or -1 if the element is not found.
-   This is the algorithm used for searching through sorted arrays in the searchElement member function.
-*/
-template <typename T>
-int CustomArray<T>::binarySearch(T element)
-{
-    std::cout << "binarySearch(...) function called.\n";
-    int idx{};
-    int low{};
-    int high{ m_arrayLength - 1 };
-    while (low <= high)
-    {
-        idx = (low + high ) / 2;
-        if (element == m_array[idx])
-        {
-            return idx;
-        }
-        else if (element < m_array[idx])
-        {
-            high = idx - 1;
-        }
-        else
-        {
-            low = idx + 1;
-        }
-    }
-    return -1;
-}
-
-/*
-   Public search member function.
-   Determines whether the array elements are in ascending order.
-   Searches linearly if the elements are not in ascending order.
-   Searches using a binary search algorithm if elements are in ascending order.
-*/
-template <typename T>
-int CustomArray<T>::searchElement(T element)
-{
-    std::cout << "searchElement(...) function called.\n";
     if (isSorted())
     {
-        return binarySearch(element);
+        return binarySearch(value);
     }
-    return linearSearch(element);
+    return linearSearch(value);
 }
 
-/*
-   Member function to overload the subscript operator.
-   Returns a reference to the element of the array at the specified index.
-*/
 template <typename T>
-T& CustomArray<T>::operator[](int idx)
+void CustomArray<T>::swap(CustomArray<T>& other)
 {
-    assert(idx >= 0 && idx < m_arrayLength && "Index is out of range.");
-    return m_array[idx];
+    std::swap(m_array_ptr,other.m_array_ptr);
+    std::swap(m_length,other.m_length);
 }
 
-/*
-   Member function to overload the subscript operator.
-   Returns a copy of the element of the array at the specified index.
-*/
-template <typename T>
-T CustomArray<T>::operator[](int idx) const
-{
-    assert(idx >= 0 && idx < m_arrayLength && "Index is out of range.");
-    return m_array[idx];
-}
+// Public member functions definitions end here.
 
-/*
-   Member function to overload the assignment operator from an l-value reference.
-   Copy assigns the array reference to the array.
-   Example: CustomArray A{ 1,2,3 }, B{};
-            B = A;
-   This example copies the array length and elements from CustomArray A to B.
-*/
-template <typename T>
-CustomArray<T>& CustomArray<T>::operator=(const CustomArray<T>& arr)
-{
-    std::cout << "CustomArray overloaded assignment operator (l-value reference CustomArray argument).\n";
-    if (&arr == this) { return *this; };
+// Friend function definitions begin here.
 
-    if (arr.m_arrayLength > 0)
-    {
-        m_arrayLength = arr.m_arrayLength;
-        if (!isNull()) { delete[] m_array; }
-        m_array = new T[m_arrayLength];
-
-        for (int idx{ 0 }; idx < m_arrayLength; ++idx)
-        {
-            m_array[idx] = arr.m_array[idx];
-        }
-    }
-    else if (arr.m_arrayLength == 0)
-    {
-        m_arrayLength = 0;
-        if (!isNull()) { delete[] m_array; }
-        m_array = nullptr;
-    }
-
-    return *this;
-}
-
-/*
-   Member function to overload the assignment operator from an r-value reference.
-   Move assigns the array reference to the array.
-   Example: CustomArray A{ 1,2,3 }, B{ 4,5,6 }, C{};
-            C = unionArray(A,B);
-   This example creates an anonymous temporary CustomArray from the unionArray(A,B) friend function.
-   CustomArray C then takes the array length and elements from unionArray(A,B) using move assignment.
-*/
-template <typename T>
-CustomArray<T>& CustomArray<T>::operator=(CustomArray<T>&& arr)
-{
-    std::cout << "CustomArray overloaded assignment operator (r-value reference CustomArray argument).\n";
-    if (arr.m_arrayLength > 0)
-    {
-        m_arrayLength = arr.m_arrayLength;
-        m_array = arr.m_array;
-        arr.m_array = nullptr;
-    }
-
-    return *this;
-}
-
-/*
-   Member function to overload the assignment operator from a list of elements.
-   Copy assigns the array reference to the array.
-   Example: CustomArray A{};
-            A = { 1,2,3 };
-   This example copies the array length and elements from the list to A.
-*/
-template <typename T>
-CustomArray<T>& CustomArray<T>::operator=(std::initializer_list<T> lst)
-{
-    std::cout << "CustomArray overloaded assignment operator (initializer_list argument).\n";
-    int newLength{ static_cast<int>(lst.size()) };
-    if (newLength == 0)
-    {
-        clearArray();
-        return *this;
-    }
-    if (m_arrayLength != newLength)
-    {
-        delete[] m_array;
-        m_arrayLength = newLength;
-        m_array = new T[newLength];
-    }
-    int counter{ 0 };
-    for (auto element : lst)
-    {
-        m_array[counter++] = element;
-    }
-
-    return *this;
-}
-
-/*
-   Friend function to overload the ostream operator.
-   Calls the Display member function that is most suited to the CustomArray template type.
-*/
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const CustomArray<T>& arr)
 {
-    return arr.Display(out);
+    return arr.display(out);
 }
 
-/*
-   Friend function to combine two arrays.
-   Outputs a temporary CustomArray to allow for chaining via the overloaded + operator.
-   The function takes references to two arrays, rather than copying by value.
-   As such, using this function directly (where appropriate) is faster than calling the overloaded + operator.
-*/
 template <typename T>
-CustomArray<T> mergeArrays(const CustomArray<T>& A, const CustomArray<T>& B)
+CustomArray<T> merge(const CustomArray<T>& A, const CustomArray<T>& B)
 {
-    std::cout << "mergeArrays(...) function called.\n";
-    int i{};
-    int j{};
-    CustomArray<T> mergedArray{};
-    while (i < A.m_arrayLength && j < B.m_arrayLength)
+    auto i{ A.begin() };
+    auto j{ B.begin() };
+    CustomArray<T> merged{};
+    while (i != A.end() && j != B.end())
     {
-        if (A[i] < B[j])
+        if (*i < *j)
         {
-            mergedArray.appendElement(A[i++]);
+            merged.pushBack(*i);
+            ++i;
         }
         else
         {
-            mergedArray.appendElement(B[j++]);
-        }
-    }
-    for (; i < A.m_arrayLength; ++i)
-    {
-        mergedArray.appendElement(A[i]);
-    }
-    for (; j < B.m_arrayLength; ++j)
-    {
-        mergedArray.appendElement(B[j]);
-    }
-    return mergedArray;
-}
-
-/*
-   Friend function to output the union of two arrays, as if they were sets.
-   The function takes references to two arrays, rather than copying by value.
-   Example: CustomArray A{ 1,2,3 }, B { 3,4,5 }, C{};
-            C = unionArray(A,B);
-   This example copy assigns CustomArray C with length 5 and elements [1,2,3,4,5].
-*/
-template <typename T>
-CustomArray<T> unionArrays(const CustomArray<T>& A, const CustomArray<T>& B)
-{
-    std::cout << "unionArrays(...) function called.\n";
-    int i{};
-    int j{};
-    CustomArray<T> unionArray{};
-    while (i < A.m_arrayLength && j < B.m_arrayLength)
-    {
-        if (A[i] < B[j])
-        {
-            unionArray.appendElement(A[i++]);
-        }
-        else if (A[i] > B[j])
-        {
-            unionArray.appendElement(B[j++]);
-        }
-        else if (A[i] == B[j])
-        {
-            unionArray.appendElement(A[i++]);
+            merged.pushBack(*j);
             ++j;
         }
     }
-    for (; i < A.m_arrayLength; ++i)
+    for (; i != A.end(); ++i) { merged.pushBack(*i); }
+    for (; j != B.end(); ++j) { merged.pushBack(*j); }
+    return merged;
+}
+
+template <typename T>
+CustomArray<T> setUnion(CustomArray<T> A, CustomArray<T> B)
+{
+    A.bubbleSort();
+    B.bubbleSort();
+    auto i{ A.begin() };
+    auto j{ B.begin() };
+    CustomArray<T> unionArray{};
+    while (i != A.end() && j != B.end())
     {
-        unionArray.appendElement(A[i]);
+        if (*i < *j)
+        {
+            unionArray.pushBack(*i);
+            ++i;
+        }
+        else if (*i > *j)
+        {
+            unionArray.pushBack(*j);
+            ++j;
+        }
+        else if (*i == *j)
+        {
+            unionArray.pushBack(*i);
+            ++i;
+            ++j;
+        }
     }
-    for (; j < B.m_arrayLength; ++j)
-    {
-        unionArray.appendElement(B[j]);
-    }
+    for (; i != A.end(); ++i) { unionArray.pushBack(*i); }
+    for (; j != B.end(); ++j) { unionArray.pushBack(*j); }
     return unionArray;
 }
 
-/*
-   Friend function to output the relative compliment of two arrays, as if they were sets.
-   Outputs a temporary CustomArray, to allow for chaining via the overloaded - operator.
-   The function takes references to two arrays, rather than copying by value.
-   As such, using this function directly (where appropriate) is faster than calling the overloaded - operator.
-   Example: CustomArray A{ 1,2,3 }, B { 3,4,5 }, C{};
-            C = relComplimentArrays(A,B);
-   This example copy assigns CustomArray C with length 2 and elements [1,2].
-*/
 template <typename T>
-CustomArray<T> relComplimentArrays(const CustomArray<T>& A, const CustomArray<T>& B)
+CustomArray<T> setDifference(CustomArray<T> A, CustomArray<T> B)
 {
-    std::cout << "relComplimentArrays(...) function called.\n";
-    int i{};
-    int j{};
-    CustomArray<T> relComplimentArray{};
-    while (i < A.m_arrayLength && j < B.m_arrayLength)
+    A.bubbleSort();
+    B.bubbleSort();
+    auto i{ A.begin() };
+    auto j{ B.begin() };
+    CustomArray<T> difference{};
+    while (i != A.end() && j != B.end())
     {
-        if (A[i] < B[j])
+        if (*i < *j)
         {
-            relComplimentArray.appendElement(A[i++]);
+            difference.pushBack(*i);
+            ++i;
         }
-        else if (A[i] > B[j]) { ++j; }
-        else if (A[i] == B[j])
+        else if (*i > *j)
+        {
+            ++j;
+        }
+        else if (*i == *j)
         {
             ++i;
             ++j;
         }
     }
-    for (; i < A.m_arrayLength; ++i)
-    {
-        relComplimentArray.appendElement(A[i]);
-    }
-    return relComplimentArray;
+    for (; i != A.end(); ++i) { difference.pushBack(*i); }
+    return difference;
 }
 
-/*
-   Friend function to output the intersection of two arrays, as if they were sets.
-   The function takes references to two arrays, rather than copying by value.
-   Example: CustomArray A{ 1,2,3 }, B { 3,4,5 }, C{};
-            C = intersectionArrays(A,B);
-   This example copy assigns CustomArray C with length 1 and element [3].
-*/
 template <typename T>
-CustomArray<T> intersectionArrays(const CustomArray<T>& A, const CustomArray<T>& B)
+CustomArray<T> setIntersection(CustomArray<T> A, CustomArray<T> B)
 {
-    std::cout << "intersectionArrays(...) function called.\n";
-    int i{};
-    int j{};
-    CustomArray<T> intersectionArray{};
-    while (i < A.m_arrayLength && j < B.m_arrayLength)
+    A.bubbleSort();
+    B.bubbleSort();
+    auto i{ A.begin() };
+    auto j{ B.begin() };
+    CustomArray<T> intersection{};
+    while (i != A.end() && j != B.end())
     {
-        if (A[i] < B[j]) { ++i; }
-        else if (A[i] > B[j]) { ++j; }
-        else if (A[i] == B[j])
+        if (*i < *j)
         {
-            intersectionArray.appendElement(A[i++]);
+            ++i;
+        }
+        else if (*i > *j)
+        {
+            ++j;
+        }
+        else if (*i == *j)
+        {
+            intersection.pushBack(*i);
+            ++i;
             ++j;
         }
     }
-    return intersectionArray;
+    return intersection;
 }
 
-/*
-   Friend function to overload the + operator.
-   Calls the mergeArrays function, copying the arrays into the function scope first.
-   This operator can be chained as required.
-*/
-template <typename T>
-CustomArray<T> operator+(CustomArray<T> A, CustomArray<T> B)
-{
-    return mergeArrays(A,B);
-}
-
-/*
-   Friend function to overload the - operator.
-   Calls the relComplimentArrays function, copying the arrays into the function scope first.
-   This operator can be chained as required.
-*/
-template <typename T>
-CustomArray<T> operator-(CustomArray<T> A, CustomArray<T> B)
-{
-    return relComplimentArrays(A,B);
-}
+// Friend functions definitions end here.
 
 #endif // CUSTOMARRAY_H_INCLUDED
+
