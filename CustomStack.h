@@ -21,11 +21,11 @@
  *   CustomStack contains its own interators for traversing forwards and backwards through its items.
  *
  *   The template class has been tested with the following data types:
- *     * Integers                   // TODO
- *     * Floats                     // TODO
- *     * Doubles                    // TODO
- *     * Characters                 // TODO
- *     * C++ strings (std::string)  // TODO
+ *     * Integers
+ *     * Floats
+ *     * Doubles
+ *     * Characters
+ *     * C++ strings (std::string)
  *
  */
 
@@ -225,6 +225,25 @@ public:
      *
      */
     constexpr CustomStack& operator=(CustomStack&& other);
+
+    /*
+     *
+     * const T& operator[](int index) const;
+     *
+     * Summary:
+     *
+     *   Index operator overload.
+     *
+     * Return Value: m_stack[index]
+     *
+     * Description:
+     *
+     *   Calls the unique pointer index operator overload.
+     *   Support negative indexing!
+     *
+     */
+    const T& operator[](int index) const;
+
 
     constexpr std::size_t size() { return m_size; }
     constexpr std::size_t items() { return m_items; }
@@ -461,6 +480,15 @@ constexpr CustomStack<T>& CustomStack<T>::operator=(CustomStack<T>&& other)
     std::cout << "Overloaded move assignment operator called.\n";
     swap(other);
     return *this;
+}
+
+template <typename T>
+const T& CustomStack<T>::operator[](int index) const
+{
+    if (index > static_cast<int>(m_size) - 1) { return m_stack[m_size - 1]; }
+    if (index < 0) { index = static_cast<int>(m_size) - (abs(index) % static_cast<int>(m_size)); }
+
+    return m_stack[index];
 }
 
 // Operator overload definitions end here.

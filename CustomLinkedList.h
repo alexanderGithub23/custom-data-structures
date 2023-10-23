@@ -105,7 +105,7 @@ class CustomLinkedList;
  *
  * Description:
  *
- *   Standard output operator overload that has friend privaleges within the CustomLinkedList class.
+ *   Standard output operator overload that has friend privileges within the CustomLinkedList class.
  *   Calls the private member function display.
  *
  */
@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& out, const CustomLinkedList<T>& list);
  *
  * Description:
  *
- *   Function to merge two linked-lists that has friend privaleges within the CustomLinkedList class.
+ *   Function to merge two linked-lists that has friend privileges within the CustomLinkedList class.
  *   Node data for both linked-lists is sorted into ascending order.
  *   Returns the combined linked-list by value.
  *
@@ -146,7 +146,7 @@ CustomLinkedList<T> merge(const CustomLinkedList<T>& a, const CustomLinkedList<T
  *
  * Description:
  *
- *   Function to return the union of two linked-lists that has friend privaleges within the CustomLinkedList class.
+ *   Function to return the union of two linked-lists that has friend privileges within the CustomLinkedList class.
  *   Node data for both linked-lists is sorted into ascending order.
  *   Returns the new linked-list by value.
  *
@@ -167,7 +167,7 @@ CustomLinkedList<T> setUnion(CustomLinkedList<T> a, CustomLinkedList<T> b);
  *
  * Description:
  *
- *   Function to return difference between two linked-lists that has friend privaleges within the CustomLinkedList class.
+ *   Function to return difference between two linked-lists that has friend privileges within the CustomLinkedList class.
  *   Node data for both linked-lists is sorted into ascending order.
  *   Returns the new linked-list by value.
  *
@@ -188,7 +188,7 @@ CustomLinkedList<T> setDifference(CustomLinkedList<T> a, CustomLinkedList<T> b);
  *
  * Description:
  *
- *   Function to return the intersection of two linked-lists that has friend privaleges within the CustomLinkedList class.
+ *   Function to return the intersection of two linked-lists that has friend privileges within the CustomLinkedList class.
  *   Node data for both linked-lists is sorted into ascending order.
  *   Returns the new linked-list by value.
  *
@@ -203,7 +203,7 @@ CustomLinkedList<T> setIntersection(CustomLinkedList<T> a, CustomLinkedList<T> b
 template <typename T>
 class CustomLinkedList
 {
-private:
+protected:
 
     struct Node
     {
@@ -312,7 +312,7 @@ public:
      *
      * Description:
      *
-     *   Switches the memory addreses of the linked-list and other linked-list pointers.
+     *   Switches the memory addresses of the linked-list and other linked-list pointers.
      *   Sets the pointer addresses of the linked-list other to nullptr.
      *
      */
@@ -344,7 +344,7 @@ public:
      *
      * Summary:
      *
-     *   Frees each linked-list node in memory before destoying the linked-list.
+     *   Frees each linked-list node in memory before destroying the linked-list.
      *
      * Description:
      *
@@ -846,6 +846,7 @@ CustomLinkedList<T>::CustomLinkedList(CustomLinkedList<T>&& other) noexcept
     other.m_head_ptr = nullptr;
     m_tail_ptr = other.m_tail_ptr;
     other.m_tail_ptr = nullptr;
+    other.m_length = 0;
 }
 
 template <typename T>
